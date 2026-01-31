@@ -1,0 +1,65 @@
+/* ============================================
+   STAR BORDER ANIMATION
+   ============================================ */
+.star-border-container {
+    position: relative;
+    background: var(--glass-bg);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    padding: 1px;
+    /* The border width */
+}
+
+/* The spinning gradients */
+.border-gradient-bottom,
+.border-gradient-top {
+    position: absolute;
+    width: 200%;
+    aspect-ratio: 1;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.border-gradient-bottom {
+    background: conic-gradient(from 180deg at 50% 50%, var(--neon-orange) 0deg, transparent 60deg, transparent 180deg, var(--neon-orange) 180deg, transparent 240deg);
+    animation: borderRotate 4s linear infinite;
+    opacity: 0.5;
+}
+
+.border-gradient-top {
+    background: conic-gradient(from 0deg at 50% 50%, var(--neon-purple) 0deg, transparent 60deg, transparent 180deg, var(--neon-purple) 180deg, transparent 240deg);
+    animation: borderRotate 4s linear infinite;
+    animation-delay: -2s;
+    opacity: 0.5;
+}
+
+@keyframes borderRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* The inner content area - sits on top of the gradients */
+.inner-content {
+    position: relative;
+    z-index: 10;
+    background: rgba(10, 10, 10, 0.6);
+    /* Slightly darker to let border pop */
+    backdrop-filter: blur(40px);
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--radius-xl) - 1px);
+}
+
+/* Make sure the container behaves as a wrapper */
+.star-border-container>.inner-content {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,38 @@
+import { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+
+const Magnet = ({ children, padding = 100, disabled = false, strength = 50 }) => {
+    const ref = useRef(null);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    const handleMouseMove = (e) => {
+        const { clientX, clientY } = e;
+        const { left, top, width, height } = ref.current.getBoundingClientRect();
+
+        const x = clientX - (left + width / 2);
+        const y = clientY - (top + height / 2);
+
+        setPosition({ x, y });
+    };
+
+    const reset = () => {
+        setPosition({ x: 0, y: 0 });
+    };
+
+    const { x, y } = position;
+
+    return (
+        <motion.div
+            style={{ position: "relative", display: "inline-block" }}
+            ref={ref}
+            onMouseMove={!disabled ? handleMouseMove : undefined}
+            onMouseLeave={!disabled ? reset : undefined}
+            animate={!disabled ? { x: x / strength, y: y / strength } : { x: 0, y: 0 }}
+            transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+        >
+            {children}
+        </motion.div>
+    );
+};
+
+export default Magnet;
