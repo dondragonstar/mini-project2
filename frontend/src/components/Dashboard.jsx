@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, Layers, Video, Palette, Type, Globe, Users, Target, Layout, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Wand2, Layers, Video, Palette, Type, Globe, Users, Target, Layout, Play, Image as ImageIcon } from 'lucide-react';
+
 import Magnet from './reactbits/Magnet';
 import ColorPaletteGenerator from './ColorPaletteGenerator';
 
@@ -20,7 +22,9 @@ const itemVariants = {
 };
 
 const Dashboard = ({ onGenerate }) => {
+    const navigate = useNavigate();
     const [level, setLevel] = useState(1);
+
     const [formData, setFormData] = useState({
         // Level 1
         brand_name: '',
@@ -83,10 +87,15 @@ const Dashboard = ({ onGenerate }) => {
                 <motion.h2
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl font-bold mb-2"
+                    className="text-3xl font-bold mb-2 cursor-pointer"
+                    onClick={() => navigate('/image-generator')}
                 >
                     Create New Content
+                    <span className="ml-2 text-xs bg-purple-500/20 text-purple-200 px-2 py-1 rounded-full border border-purple-500/40 hover:bg-purple-500/40 transition-colors">
+                        ✨ Try Image Gen
+                    </span>
                 </motion.h2>
+
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

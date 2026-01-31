@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\devaj\mini-project2\mini-project-temp\backend\main.py", line 226, in generate_content
+    raise HTTPException(status_code=500, detail=f"All models failed. Last error: {str(last_error)}")
+fastapi.exceptions.HTTPException: 500: All models failed. Last error: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.

@@ -5,7 +5,9 @@ import './App.css';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Result from './components/Result';
+import ImageGenerator from './components/ImageGenerator';
 import PageTransition from './components/PageTransition';
+
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -101,6 +103,15 @@ const AnimatedRoutes = () => {
                         <ResultWrapper data={generatedData} />
                     </ProtectedRoute>
                 } />
+
+                <Route path="/image-generator" element={
+                    <ProtectedRoute>
+                        <PageTransition>
+                            <ImageGenerator />
+                        </PageTransition>
+                    </ProtectedRoute>
+                } />
+
 
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
