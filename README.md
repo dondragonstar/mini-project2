@@ -6,15 +6,23 @@ A modern web application that generates culturally authentic marketing content t
 
 ### Backend (FastAPI)
 
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
+1. Create a `.env` file in the `backend` directory with the following API keys:
+   ```env
+   GEMINI_API_KEY=your_gemini_key
+   POLLINATIONS_API_KEY=your_pollinations_key
+   ```
+   *(Note: The HuggingFace API is deprecated for this project in favor of the Pollinations Image Generation API)*
+
+2. Install dependencies and run:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
 
 The API will be available at `http://localhost:8000`
 
-### Frontend (React + Vite)
+### Frontend (React + Vite + Tailwind v4)
 
 ```bash
 cd frontend
@@ -89,8 +97,8 @@ mini-project-temp/
 }
 ```
 
-## Next Steps
+## Technology Stack
 
-- Integrate Gemini API for AI-powered content generation
-- Add more customization options
-- Implement content history and favorites
+- **Backend:** FastAPI, Python, Google Gemini (Text Gen), Pollinations API (Image Gen)
+- **Frontend:** React, Vite, Framer Motion, Tailwind CSS v4
+- **Aesthetics:** Glassmorphism, UI React Bits, Aurora Gradients
