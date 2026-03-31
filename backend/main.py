@@ -21,6 +21,10 @@ HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
 if not HF_API_KEY:
     print("Warning: HUGGINGFACE_API_KEY not found in .env file")
 
+POLLINATIONS_API_KEY = os.getenv("POLLINATIONS_API_KEY")
+if not POLLINATIONS_API_KEY:
+    print("Warning: POLLINATIONS_API_KEY not found in .env file")
+
 
 genai.configure(api_key=GENAI_KEY)
 
@@ -149,20 +153,22 @@ def build_gemini_prompt(req: GenerateRequest) -> str:
     return base_prompt
 
 async def generate_image_url(prompt):
-    # Use the same logic as generate_image but return data URI as string
-    if not HF_API_KEY:
-        print("HF Key missing for generate_image_url")
+    # Use Pollinations API for image generation
+    if not POLLINATIONS_API_KEY:
+        print("POLLINATIONS_API_KEY missing for generate_image_url")
         return None
         
-    API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    import urllib.parse
+    prompt_encoded = urllib.parse.quote(prompt)
+    API_URL = f"https://gen.pollinations.ai/image/{prompt_encoded}?model=flux"
+    headers = {"Authorization": f"Bearer {POLLINATIONS_API_KEY}"}
     
     try:
         print(f"Generating Image (Main Flow) for: {prompt}")
-        response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
+        response = requests.get(API_URL, headers=headers)
         
         if response.status_code != 200:
-            print(f"HF Error: {response.text}")
+            print(f"Pollinations Error: {response.text}")
             return None
             
         import base64
@@ -271,23 +277,22 @@ async def generate_content(req: GenerateRequest):
 # --- IMAGE GENERATION ENDPOINT ---
 @app.post("/generate-image")
 async def generate_image(req: ImageGenerateRequest):
-    if not HF_API_KEY:
-        raise HTTPException(status_code=500, detail="Hugging Face API Key is missing")
+    if not POLLINATIONS_API_KEY:
+        raise HTTPException(status_code=500, detail="Pollinations API Key is missing")
     
-    API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    import urllib.parse
+    prompt_encoded = urllib.parse.quote(req.prompt)
+    API_URL = f"https://gen.pollinations.ai/image/{prompt_encoded}?model=flux"
+    headers = {"Authorization": f"Bearer {POLLINATIONS_API_KEY}"}
 
     try:
         print(f"Generating Image for prompt: {req.prompt}")
-        response = requests.post(API_URL, headers=headers, json={"inputs": req.prompt})
+        response = requests.get(API_URL, headers=headers)
         
         if response.status_code != 200:
-            error_detail = response.json().get("error", "Unknown error from HF API")
-            print(f"HF API Error: {error_detail}")
-            # Handle loading state specifically
-            if "estimated_time" in response.json():
-                 raise HTTPException(status_code=503, detail=f"Model loading, please try again in {response.json()['estimated_time']}s")
-            raise HTTPException(status_code=response.status_code, detail=f"HF API Error: {error_detail}")
+            error_detail = response.text
+            print(f"Pollinations API Error: {error_detail}")
+            raise HTTPException(status_code=response.status_code, detail=f"Pollinations API Error: {error_detail}")
 
         # Return the image as base64
         image_bytes = response.content

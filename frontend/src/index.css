@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================
    GLOBAL STYLES - Dark Theme with Neon Accents
    Inspired by React Bits aesthetics

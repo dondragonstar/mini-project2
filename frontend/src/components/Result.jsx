@@ -76,10 +76,20 @@ const Result = ({ data }) => {
                             </button>
                         </div>
 
-                        <div className="flex-grow font-medium leading-relaxed text-lg bg-black/20 p-6 rounded-xl border border-white/5 shadow-inner overflow-hidden">
-                            {/* Used BlurText for smoother reveal, preserving wrap */}
-                            <div className="whitespace-pre-wrap">
-                                <BlurText text={data.script} delay={0.01} className="inline-block" />
+                        <div className="flex-grow font-medium leading-relaxed text-lg bg-black/20 p-6 rounded-xl border border-white/5 shadow-inner overflow-y-auto">
+                            <div className="text-gray-200">
+                                {data.script.split('\n').map((paragraph, i) => (
+                                    paragraph.trim() === '' ? <br key={i} /> :
+                                        <motion.p
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 * i, duration: 0.5 }}
+                                            key={i}
+                                            className="mb-4 last:mb-0"
+                                        >
+                                            {paragraph}
+                                        </motion.p>
+                                ))}
                             </div>
                         </div>
 
@@ -122,26 +132,26 @@ const Result = ({ data }) => {
 
                             <div className="flex-grow flex flex-col gap-4">
                                 {data.image_url ? (
-                                    <div className="w-full aspect-video bg-black/40 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center relative">
+                                    <div className="w-full aspect-square bg-black/40 rounded-xl border border-white/10 shadow-[0_0_40px_-10px_rgba(255,107,53,0.2)] overflow-hidden flex items-center justify-center relative transition-all hover:shadow-[0_0_50px_-5px_rgba(255,107,53,0.4)]">
                                         <img
                                             src={data.image_url}
                                             alt="Generated Visual"
                                             className="w-full h-full object-cover transition-opacity duration-500"
                                             loading="lazy"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
                                     </div>
                                 ) : (
-                                    <div className="w-full aspect-video bg-black/40 rounded-xl border border-white/10 flex items-center justify-center text-gray-500">
+                                    <div className="w-full aspect-square bg-black/40 rounded-xl border border-white/10 flex items-center justify-center text-gray-500">
                                         <span>No Preview Available</span>
                                     </div>
                                 )}
 
                                 <div className="p-4 bg-gradient-to-br from-orange-500/5 to-purple-500/5 rounded-xl border border-white/10 relative overflow-hidden group-hover:border-orange-500/30 transition-colors">
                                     <div className="absolute top-2 left-2 text-orange-500/20 text-4xl font-serif">"</div>
-                                    <p className="relative z-10 italic text-gray-300 leading-relaxed indent-4 whitespace-pre-wrap text-sm">
-                                        <BlurText text={data.visual_prompt} delay={0.01} className="inline-block" />
-                                    </p>
+                                    <div className="relative z-10 italic text-gray-300 leading-relaxed text-sm px-2">
+                                        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>{data.visual_prompt}</motion.span>
+                                    </div>
                                     <div className="absolute bottom-2 right-4 text-orange-500/20 text-4xl font-serif">"</div>
                                 </div>
                             </div>
