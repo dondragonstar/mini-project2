@@ -1,119 +1,75 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import './App.css';
+import { ThemeProvider } from './ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import Result from './components/Result';
+import HistoryPage from './components/HistoryPage';
+import TemplatesPage from './components/TemplatesPage';
+import AnalyticsPage from './components/AnalyticsPage';
+import CalendarPage from './components/CalendarPage';
+import BrandsPage from './components/BrandsPage';
+import SharePage from './components/SharePage';
 import ImageGenerator from './components/ImageGenerator';
-import PageTransition from './components/PageTransition';
+import Navbar from './components/Navbar';
+import OnboardingTour from './components/OnboardingTour';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
+import ContentCalendar from './components/ContentCalendar';
+import CampaignBuilder from './components/CampaignBuilder';
+import GamificationPanel from './components/GamificationPanel';
+import InspirationFeed from './components/InspirationFeed';
+import ApprovalWorkflow from './components/ApprovalWorkflow';
+import SmartQueue from './components/SmartQueue';
 
+const isAuthenticated = () => !!localStorage.getItem('token');
 
-// Protected Route Wrapper
-const ProtectedRoute = ({ children }) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
-    return children;
+const ProtectedRoute = () => {
+    if (!isAuthenticated()) return <Navigate to="/auth" replace />;
+    return <Outlet />;
 };
 
-// Wrapper to handle Navigation after generation correctly
-const DashboardWrapper = ({ onGenerate }) => {
-    const navigate = useNavigate();
-    const handleGen = async (data) => {
-        try {
-            const response = await fetch('http://localhost:8000/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (!response.ok) throw new Error("API Error");
-            const resData = await response.json();
-            onGenerate(resData);
-            navigate('/result');
-        } catch (e) {
-            alert("Generation failed: " + e.message);
-        }
-    }
-
+const AppLayout = () => {
     return (
-        <PageTransition className="app">
-            <header className="header" style={{ marginBottom: '20px', paddingTop: '20px' }}>
-                <div className="header__logo">
-                    <h1 className="header__title text-2xl">
-                        <span className="shiny-text">Content Studio AI</span>
-                    </h1>
-                </div>
-                <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                    <button onClick={() => {
-                        localStorage.clear();
-                        navigate('/login');
-                    }} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>Logout</button>
-                </div>
-            </header>
-            <Dashboard onGenerate={handleGen} />
-            <footer className="footer">Content Studio AI</footer>
-        </PageTransition>
+        <>
+            <Navbar />
+            <OnboardingTour />
+            <KeyboardShortcuts />
+            <div className="app-main">
+                <Outlet />
+            </div>
+        </>
     );
 };
-
-const ResultWrapper = ({ data }) => {
-    // Safety check - if user reloads on result page, they lose data, so send back to dashboard
-    if (!data) {
-        return <Navigate to="/dashboard" replace />;
-    }
-
-    return (
-        <PageTransition className="app">
-            <header className="header" style={{ marginBottom: '20px', paddingTop: '20px' }}>
-                <h1 className="header__title text-2xl"><span className="shiny-text">Content Studio AI</span></h1>
-            </header>
-            <Result data={data} />
-        </PageTransition>
-    );
-};
-
-const AuthWrapper = () => {
-    return (
-        <PageTransition>
-            <Auth />
-        </PageTransition>
-    );
-}
 
 const AnimatedRoutes = () => {
     const location = useLocation();
-    const [generatedData, setGeneratedData] = useState(null);
-
     return (
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
-                <Route path="/login" element={<AuthWrapper />} />
-                <Route path="/register" element={<AuthWrapper />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/share/:shareId" element={<SharePage />} />
 
-                <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                        <DashboardWrapper onGenerate={setGeneratedData} />
-                    </ProtectedRoute>
-                } />
+                <Route element={<ProtectedRoute />}>
+                    <Route element={<AppLayout />}>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/result" element={<Result />} />
+                        <Route path="/history" element={<HistoryPage />} />
+                        <Route path="/templates" element={<TemplatesPage />} />
+                        <Route path="/analytics" element={<AnalyticsPage />} />
+                        <Route path="/calendar" element={<CalendarPage />} />
+                        <Route path="/brands" element={<BrandsPage />} />
+                        <Route path="/image-gen" element={<ImageGenerator />} />
+                        <Route path="/content-calendar" element={<ContentCalendar />} />
+                        <Route path="/campaigns" element={<CampaignBuilder />} />
+                        <Route path="/progress" element={<GamificationPanel />} />
+                        <Route path="/inspiration" element={<InspirationFeed />} />
+                        <Route path="/approvals" element={<ApprovalWorkflow />} />
+                        <Route path="/smart-queue" element={<SmartQueue />} />
+                    </Route>
+                </Route>
 
-                <Route path="/result" element={
-                    <ProtectedRoute>
-                        <ResultWrapper data={generatedData} />
-                    </ProtectedRoute>
-                } />
-
-                <Route path="/image-generator" element={
-                    <ProtectedRoute>
-                        <PageTransition>
-                            <ImageGenerator />
-                        </PageTransition>
-                    </ProtectedRoute>
-                } />
-
-
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/auth"} replace />} />
             </Routes>
         </AnimatePresence>
     );
@@ -121,9 +77,13 @@ const AnimatedRoutes = () => {
 
 function App() {
     return (
-        <Router>
-            <AnimatedRoutes />
-        </Router>
+        <ErrorBoundary>
+            <ThemeProvider>
+                <BrowserRouter>
+                    <AnimatedRoutes />
+                </BrowserRouter>
+            </ThemeProvider>
+        </ErrorBoundary>
     );
 }
 
